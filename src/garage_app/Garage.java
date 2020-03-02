@@ -19,11 +19,6 @@ public class Garage {
     private int checkedOutWithId = 0;
     private int checkedOutWithLost = 0;
 
-//    public Garage(List<Vehicle> vehicles, List<Ticket> tickets){
-//        this.vehicles = vehicles;
-//        this.tickets = tickets;
-//    }
-
     public void basicHeader() {
         System.out.println(
                 "\n*************************\n" +
@@ -65,9 +60,10 @@ public class Garage {
         System.out.print(".");
     }
 
-    public void receipt(Ticket ticket, String enteredTime, String timeLeft){
+    public void receipt(Ticket ticket, String enteredTime, String timeLeft, int price){
         System.out.println("Receipt for vehicle id " + ticket.getTicketId());
         System.out.println("Hours Parked: " + enteredTime + " - " + timeLeft);
+        System.out.println("$" + price + " - PAID");
     }
 
     public void exitMsg() throws InterruptedException {
@@ -81,10 +77,10 @@ public class Garage {
         Thread.sleep(1000);
     }
 
-    public void checkin(){
+    public void checkin() throws InterruptedException {
 
         int enterTime = (rand.nextInt(6) + 7);
-        System.out.println(enterTime);
+
         Ticket newTicket = new Ticket(id, enterTime);
         tickets.add(newTicket);
         for (Ticket ticket : tickets) {
@@ -92,8 +88,14 @@ public class Garage {
             {
                 id++;
             }
-            System.out.println(ticket.getTicketId() + " " + ticket.getEnterTime());
         }
+        LocalTime enterTimeFormatter = LocalTime.of(newTicket.getEnterTime(), 0);
+        System.out.println("Printing Ticket (Keep in your car)\n");
+        pause();
+        System.out.println("\n********* Ticket *********\n" +
+                "Ticket Id: " + newTicket.getTicketId() +  "\n" +
+                "Car entered garage at " + enterTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")));
+        Thread.sleep(1500);
         checkedIn++;
     }
 
@@ -145,7 +147,8 @@ public class Garage {
                             receipt(
                                     ticket,
                                     enterTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")),
-                                    leaveTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a"))
+                                    leaveTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                                    stayCost
                             );
 
                             tickets.remove(ticket);
@@ -185,10 +188,10 @@ public class Garage {
                     throw new IllegalStateException("Unexpected value: " + checkoutResp);
             }
         } while ((!checkoutResp.equals("1") && !checkoutResp.equals("2")) || !foundTix);
-        for (int i = 0; i <= tickets.size() - 1; i++)
-        {
-            System.out.println(tickets.get(i) +"\n"+ tickets.get(i).getTicketId());
-        }
+//        for (int i = 0; i <= tickets.size() - 1; i++)
+//        {
+//            System.out.println(tickets.get(i) +"\n"+ tickets.get(i).getTicketId());
+//        }
     }
 
     public void closingTime() throws InterruptedException {
