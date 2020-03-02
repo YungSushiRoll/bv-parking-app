@@ -16,7 +16,6 @@ public class Garage {
     private int idCollected = 0;
     private int lostCollected = 0;
     private int checkedIn = 0;
-    private int totalCheckedIn = 0;
     private int checkedOutWithId = 0;
     private int checkedOutWithLost = 0;
 
@@ -66,8 +65,9 @@ public class Garage {
         System.out.print(".");
     }
 
-    public void receipt(Ticket ticket){
+    public void receipt(Ticket ticket, String enteredTime, String timeLeft){
         System.out.println("Receipt for vehicle id " + ticket.getTicketId());
+        System.out.println("Hours Parked: " + enteredTime + " - " + timeLeft);
     }
 
     public void exitMsg() throws InterruptedException {
@@ -95,7 +95,6 @@ public class Garage {
             System.out.println(ticket.getTicketId() + " " + ticket.getEnterTime());
         }
         checkedIn++;
-        totalCheckedIn++;
     }
 
     public void checkout() throws InterruptedException {
@@ -143,12 +142,12 @@ public class Garage {
                             System.out.print("\nPaid!\n");
                             Thread.sleep(1000);
                             basicHeader();
-                            receipt(ticket);
+                            receipt(
+                                    ticket,
+                                    enterTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                                    leaveTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a"))
+                            );
 
-                            System.out.println("$"+ stayCost);
-
-                            System.out.println(ticket.getTicketId() + "\nEntered " + enterTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")) + "\nLeft"
-                                   + leaveTime + " " + leaveTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")) + "\ndiff" + timeDiff +"\nIndex"+ tickets.indexOf(ticket));
                             tickets.remove(ticket);
                             checkedIn--;
                             checkedOutWithId++;
@@ -168,10 +167,17 @@ public class Garage {
                     break;
                 case "2" :
                     System.out.println("Lost your ticket huh? tsk tsk tsk");
+                    int lostCost = 25;
+                    System.out.println("Since you lost your ticket you owe $" + lostCost);
+                    System.out.println("Time to pay!");
+                    pause();
+                    System.out.print("\nPaid!\n");
+                    Thread.sleep(1000);
+                    basicHeader();
+                    System.out.println("Receipt for Lost Ticket\n$" + lostCost);
+                    lostCollected += lostCost;
+                    totalCollected += lostCollected;
                     tickets.remove(rand.nextInt(tickets.size()));
-                    // charge $25.00
-                    // add to lostCollected
-                    // add to totalCollected
                     checkedIn--;
                     checkedOutWithLost++;
                     break;
