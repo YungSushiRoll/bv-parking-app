@@ -1,6 +1,5 @@
 package garage_app;
 
-import java.nio.channels.ScatteringByteChannel;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
