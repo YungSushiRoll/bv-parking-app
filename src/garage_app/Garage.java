@@ -1,5 +1,6 @@
 package garage_app;
 
+import java.nio.channels.ScatteringByteChannel;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -43,12 +44,12 @@ public class Garage {
         }
     }
 
-    public void invalidHeader()
-    {
+    public void invalidHeader() throws InterruptedException {
         System.out.println(
                 "\n*************************\n" +
                 "Not a valid option choose again\n" +
                 "*************************\n");
+        Thread.sleep(2000);
     }
 
     public void pause() throws InterruptedException{
@@ -114,79 +115,83 @@ public class Garage {
                     "1 - Check out with ticket ID\n" +
                     "2 - Lost ticket");
             checkoutResp = keyboard.nextLine();
-            System.out.println(checkedIn);
-            switch (checkoutResp)
-            {
-                case "1" :
-                    System.out.println("Enter Ticket ID:");
-                    ticketResp = keyboard.nextLine();
-                    int newResp = Integer.parseInt(ticketResp);
-                    for (Ticket ticket : tickets) {
-                        if (newResp == ticket.getTicketId()) {
-                            int stayCost = 5;
-                            System.out.println("Found it!");
-                            foundTix = true;
-                            timeDiff = (leaveTime - ticket.getEnterTime());
-                            // Time formatting for output
-                            LocalTime leaveTimeFormatter = LocalTime.of(leaveTime, 0);
-                            LocalTime enterTimeFormatter = LocalTime.of(ticket.getEnterTime(), 0);
-                            // checking to see if time spent is greater than 3 hours
-                            if (timeDiff > 3){
-                                stayCost += (timeDiff - 3);
-                            }
-                            // total collected from people with ticket Id
-                            idCollected += stayCost;
-                            // totals money collected
-                            totalCollected += idCollected;
-                            System.out.println("Time to pay!");
-                            System.out.println("You owe $"+ stayCost);
-                            pause();
-                            System.out.print("\nPaid!\n");
-                            Thread.sleep(1000);
-                            basicHeader();
-                            receipt(
-                                    ticket,
-                                    enterTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")),
-                                    leaveTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")),
-                                    stayCost
-                            );
+            try {
+                switch (checkoutResp){
+                    case "1":
+                        System.out.println("Enter Ticket ID:");
+                        ticketResp = keyboard.nextLine();
+                        int newResp = Integer.parseInt(ticketResp);
+                        for (Ticket ticket : tickets) {
+                            if (newResp == ticket.getTicketId()) {
+                                int stayCost = 5;
+                                System.out.println("Found it!");
+                                foundTix = true;
+                                timeDiff = (leaveTime - ticket.getEnterTime());
+                                // Time formatting for output
+                                LocalTime leaveTimeFormatter = LocalTime.of(leaveTime, 0);
+                                LocalTime enterTimeFormatter = LocalTime.of(ticket.getEnterTime(), 0);
+                                // checking to see if time spent is greater than 3 hours
+                                if (timeDiff > 3) {
+                                    stayCost += (timeDiff - 3);
+                                }
+                                // total collected from people with ticket Id
+                                idCollected += stayCost;
+                                // totals money collected
+                                totalCollected += idCollected;
+                                System.out.println("Time to pay!");
+                                System.out.println("You owe $" + stayCost);
+                                pause();
+                                System.out.print("\nPaid!\n");
+                                Thread.sleep(1000);
+                                basicHeader();
+                                receipt(
+                                        ticket,
+                                        enterTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                                        leaveTimeFormatter.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                                        stayCost
+                                );
 
-                            tickets.remove(ticket);
-                            checkedIn--;
-                            checkedOutWithId++;
-                            break;
-                        } else {
-                            foundTix = false;
+                                tickets.remove(ticket);
+                                checkedIn--;
+                                checkedOutWithId++;
+                                break;
+                            } else {
+                                foundTix = false;
+                            }
                         }
-                    }
-                    if (!foundTix){
-                        System.out.println(
-                                "Hm, seems like we don't have a ticket with that ID.\n" +
-                                "Check again"
-                        );
+                        if (!foundTix) {
+                            System.out.println(
+                                    "Hm, seems like we don't have a ticket with that ID.\n" +
+                                            "Check again"
+                            );
+                            Thread.sleep(1000);
+                        }
+                        // check ticket id with Ticket list
+                        break;
+                    case "2":
+                        System.out.println("Lost your ticket huh? tsk tsk tsk");
+                        int lostCost = 25;
+                        System.out.println("Since you lost your ticket you owe $" + lostCost);
+                        System.out.println("Time to pay!");
+                        pause();
+                        System.out.print("\nPaid!\n");
                         Thread.sleep(1000);
-                    }
-                    // check ticket id with Ticket list
-                    break;
-                case "2" :
-                    System.out.println("Lost your ticket huh? tsk tsk tsk");
-                    int lostCost = 25;
-                    System.out.println("Since you lost your ticket you owe $" + lostCost);
-                    System.out.println("Time to pay!");
-                    pause();
-                    System.out.print("\nPaid!\n");
-                    Thread.sleep(1000);
-                    basicHeader();
-                    System.out.println("Receipt for Lost Ticket\n$" + lostCost);
-                    lostCollected += lostCost;
-                    totalCollected += lostCollected;
-                    tickets.remove(rand.nextInt(tickets.size()));
-                    checkedIn--;
-                    checkedOutWithLost++;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + checkoutResp);
+                        basicHeader();
+                        System.out.println("Receipt for Lost Ticket\n$" + lostCost);
+                        lostCollected += lostCost;
+                        totalCollected += lostCollected;
+                        tickets.remove(rand.nextInt(tickets.size()));
+                        checkedIn--;
+                        checkedOutWithLost++;
+                        break;
+                    default:
+                        invalidHeader();
+                }
+            } catch (IllegalStateException e){
+                e.getMessage();
+                System.out.println("Unexpected value: " + checkoutResp);
             }
+
         } while ((!checkoutResp.equals("1") && !checkoutResp.equals("2")) || !foundTix);
 //        for (int i = 0; i <= tickets.size() - 1; i++)
 //        {
@@ -202,5 +207,7 @@ public class Garage {
         System.out.println("$" + idCollected + " was collected from " + checkedOutWithId + " Check-Ins");
         System.out.println("$" + lostCollected + " was collected from " + checkedOutWithLost + " Lost Tickets");
         System.out.println("$" + totalCollected + " was collected overall");
+
+        // write to file somehow
     }
 }

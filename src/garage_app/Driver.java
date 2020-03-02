@@ -33,7 +33,6 @@ public class Driver {
                         break;
                     }
                     garage.invalidHeader();
-                    Thread.sleep(2000);
             }
         } while (!choice.equals("4"));
 
