@@ -199,6 +199,7 @@ public class Garage {
     }
 
     public void closingTime() throws InterruptedException {
+        id = 1;
         System.out.println("*Speakers start to blast \"Closing Time\" by Semisonic*\n");
         Thread.sleep(1500);
         basicHeader();
@@ -207,6 +208,13 @@ public class Garage {
         System.out.println("$" + lostCollected + " was collected from " + checkedOutWithLost + " Lost Tickets");
         System.out.println("$" + totalCollected + " was collected overall");
 
+        // reset values
+        // may or may not need this idk
+        idCollected = 0;
+        lostCollected = 0;
+        totalCollected = 0;
+        checkedOutWithLost = 0;
+        checkedOutWithId = 0;
         // write to file somehow
     }
 }
