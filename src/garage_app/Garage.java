@@ -9,6 +9,10 @@ import java.util.Scanner;
 
 public class Garage {
 
+    // make checkin machine / check out
+    // file read/writer
+    // license plate thing
+
     private List<Ticket> tickets = new ArrayList<>();
     private int id = 1;
     private Random rand = new Random();
