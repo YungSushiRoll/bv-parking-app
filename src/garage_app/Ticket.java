@@ -1,6 +1,8 @@
 package garage_app;
 
-public class Ticket {
+import java.io.Serializable;
+
+public class Ticket implements Serializable {
 
     private int ticketId;
     private int enterTime;
@@ -17,4 +19,6 @@ public class Ticket {
     public int getEnterTime(){
         return enterTime;
     }
+
+
 }

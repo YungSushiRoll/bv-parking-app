@@ -1,5 +1,8 @@
 package garage_app;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -7,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Garage {
+public class Garage implements Serializable {
 
     // make checkin machine / check out
     // file read/writer
@@ -62,6 +65,10 @@ public class Garage {
         System.out.print(".");
         Thread.sleep(1000);
         System.out.print(".");
+    }
+
+    public void openGarage() throws IOException {
+        tickets = new TicketReader().readTicketFile("garageList.dat");
     }
 
     public void receipt(Ticket ticket, String enteredTime, String timeLeft, int price){
@@ -196,18 +203,15 @@ public class Garage {
             }
 
         } while ((!checkoutResp.equals("1") && !checkoutResp.equals("2")) || !foundTix);
-//        for (int i = 0; i <= tickets.size() - 1; i++)
-//        {
-//            System.out.println(tickets.get(i) +"\n"+ tickets.get(i).getTicketId());
-//        }
     }
 
-    public void closingTime() throws InterruptedException {
+    public void closingTime() throws InterruptedException, IOException {
+        LocalDateTime reportDate = LocalDateTime.now();
         id = 1;
         System.out.println("*Speakers start to blast \"Closing Time\" by Semisonic*\n");
         Thread.sleep(1500);
         basicHeader();
-        System.out.println("Activity to Date\n");
+        System.out.println("Activity to Date\n" + reportDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a")));
         System.out.println("$" + idCollected + " was collected from " + checkedOutWithId + " Check-Ins");
         System.out.println("$" + lostCollected + " was collected from " + checkedOutWithLost + " Lost Tickets");
         System.out.println("$" + totalCollected + " was collected overall");
@@ -219,6 +223,8 @@ public class Garage {
         totalCollected = 0;
         checkedOutWithLost = 0;
         checkedOutWithId = 0;
+
+        new TicketWriter().writeTicketFile("garageList.dat", tickets);
         // write to file somehow
     }
 }
